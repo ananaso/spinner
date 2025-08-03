@@ -1,1 +1,5 @@
+# Javascript/Typescript
+**/node_modules/
+
+# VSCode
 .vscode/
