@@ -1,5 +1,7 @@
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d")
+
+const CANVAS_SIZE = 700
 let activeRaf, idleRaf
 let activeSpinning = false
 let activeSlowing = false
@@ -10,8 +12,8 @@ let rotationSpeed = baseActiveSpeed
 const pieSlice = {
 	x: 0,
 	y: 0,
-	outerRadius: 50,
-	innerRadius: 10,
+	outerRadius: (CANVAS_SIZE / 2) - 10,
+	innerRadius: CANVAS_SIZE / 10,
 	draw(index, numSlices) {
 		const slice = new Path2D()
 		slice.arc(
@@ -36,7 +38,7 @@ const pieSlice = {
 }
 
 const idleDraw = () => {
-	ctx.clearRect(-250, -250, 500, 500)
+	ctx.clearRect(-(CANVAS_SIZE / 2), -(CANVAS_SIZE / 2), CANVAS_SIZE, CANVAS_SIZE)
 
 	const numSlices = 7
 
@@ -52,7 +54,7 @@ const idleDraw = () => {
 }
 
 const activeDraw = () => {
-	ctx.clearRect(-250, -250, 500, 500)
+	ctx.clearRect(-(CANVAS_SIZE / 2), -(CANVAS_SIZE / 2), CANVAS_SIZE, CANVAS_SIZE)
 
 	const numSlices = 7
 
@@ -126,5 +128,5 @@ canvas.addEventListener("click", () => {
 	}
 })
 
-ctx.translate(250, 250)
+ctx.translate(350, 350)
 window.addEventListener("load", idleDraw)
