@@ -1,7 +1,11 @@
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d")
-let raf, idleRaf
+let activeRaf, idleRaf
 let activeSpinning = false
+let activeSlowing = false
+let activeStopped = false
+let baseActiveSpeed = 360
+let rotationSpeed = baseActiveSpeed
 
 const pieSlice = {
 	x: 0,
@@ -37,7 +41,7 @@ const idleDraw = () => {
 	const numSlices = 7
 
 	ctx.rotate(
-		Math.PI / 2 / 360
+		Math.PI / 2 / baseActiveSpeed
 	)
 
 	for (let i = 0; i < numSlices; i++) {
@@ -52,15 +56,31 @@ const activeDraw = () => {
 
 	const numSlices = 7
 
-	ctx.rotate(
-		Math.PI / 2 / 60
-	)
+	if (!activeStopped) {
+		ctx.rotate(
+			Math.PI / 2 / rotationSpeed
+		)
+	}
 
 	for (let i = 0; i < numSlices; i++) {
 		pieSlice.draw(i, numSlices)
 	}
 
-	raf = window.requestAnimationFrame(activeDraw)
+	if (!activeSlowing && rotationSpeed > 1) {
+		// speed up until we hit top speed
+		rotationSpeed = rotationSpeed * 0.9
+	} else if (activeSlowing && rotationSpeed < 720) {
+		// slow down until we come to a full stop
+		rotationSpeed = Math.min(rotationSpeed * 1.05, 720)
+	} else if (activeSlowing && rotationSpeed === 720) {
+		activeStopped = true
+	} else {
+		// start braking once we've hit top speed
+		activeSlowing = true
+		rotationSpeed = rotationSpeed * 1.05
+	}
+
+	activeRaf = window.requestAnimationFrame(activeDraw)
 }
 
 /**
@@ -91,17 +111,18 @@ function rainbow(numOfSteps, step) {
 	return (c)
 }
 
-canvas.addEventListener("click", (e) => {
+canvas.addEventListener("click", () => {
 	if (!activeSpinning) {
 		window.cancelAnimationFrame(idleRaf)
-		raf = window.requestAnimationFrame(activeDraw)
+		activeRaf = window.requestAnimationFrame(activeDraw)
 		activeSpinning = true
-		console.log("Active Spinning!")
 	} else {
-		window.cancelAnimationFrame(raf)
+		window.cancelAnimationFrame(activeRaf)
 		idleRaf = window.requestAnimationFrame(idleDraw)
 		activeSpinning = false
-		console.log("Cancelling spinning!")
+		activeSlowing = false
+		activeStopped = false
+		rotationSpeed = baseActiveSpeed
 	}
 })
 
